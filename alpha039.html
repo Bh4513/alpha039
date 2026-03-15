@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nexus Gaming — Boutique E-sport</title>
+  <style>
+    :root{
+      --neon-blue: #00d4ff;
+      --neon-purple: #8a2be2;
+      --dark-bg: #0b0e14;
+      --card-bg: #161b22;
+      --text: #e6edf3;
+      --accent: #ff007a;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background: var(--dark-bg); color: var(--text); min-height: 100vh;}
+    
+    header{
+      background: rgba(22, 27, 34, 0.95);
+      border-bottom: 2px solid var(--neon-purple);
+      color:white;
+      padding:15px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:45px;height:45px;border-radius:8px;background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);}
+    
+    .timer-box {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 8px 15px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid var(--neon-blue);
+      box-shadow: inset 0 0 5px var(--neon-blue);
+    }
+    #countdown {
+      font-family: 'Courier New', monospace;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: var(--neon-blue);
+      display: block;
+    }
+
+    main{padding:28px 20px;max-width:1100px;margin:0 auto}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+    
+    .card{
+      background: var(--card-bg);
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding:15px;
+      transition: all 0.3s ease;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .card:hover { 
+      transform: translateY(-5px); 
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    }
+    
+    .thumb{
+      height:140px;
+      border-radius:8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      background: #0d1117;
+    }
+
+    .title{font-weight:700; font-size: 1.1rem; color: #fff;}
+    .price{font-weight:800; color: var(--neon-blue); font-size: 1.2rem}
+    .muted{color:#8b949e; font-size: 13px; min-height: 38px}
+    
+    .btn{
+      background: linear-gradient(90deg, var(--neon-purple), #6a1b9a);
+      color:white; padding:10px; border-radius:6px; border:none; cursor:pointer; 
+      font-weight:700; text-transform: uppercase; transition: 0.3s;
+    }
+    .btn:hover{ filter: brightness(1.2); box-shadow: 0 0 10px var(--neon-purple); }
+    
+    .badge{position:absolute; right:-8px; top:-8px; background: var(--accent); color: white; border-radius: 5px; padding:2px 6px; font-weight:800; font-size: 12px}
+    .cart-btn{position:relative; background: #0d1117; border: 1px solid #30363d;}
+
+    .drawer{
+      position:fixed; right:0; top:0; width:340px; height:100vh;
+      background: var(--card-bg); border-left: 2px solid var(--neon-purple);
+      padding:25px; transform:translateX(100%); transition: 0.3s ease; 
+      overflow-y:auto; z-index:999;
+    }
+    .drawer.open{transform:translateX(0)}
+    
+    .input-field{
+      width:100%; padding:12px; border-radius:6px; border:1px solid #30363d; 
+      margin-bottom:10px; background: #0d1117; color: white;
+    }
+    .new-tag { background: var(--accent); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 5px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="logo">NX</div>
+      <div>
+        <h1 style="margin:0; font-size: 18px; letter-spacing: 1px;">NEXUS GAMING</h1>
+        <div style="font-size:11px; color: var(--neon-blue)">Drop de loot imminent !</div>
+      </div>
+    </div>
+
+    <div class="timer-box">
+      <span style="font-size: 9px; text-transform: uppercase; font-weight: 700; opacity: 0.8;">Nouvel arrivage :</span>
+      <span id="countdown">00:00:00</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn cart-btn" id="toggle-cart">📦 <span class="badge" id="cart-count">0</span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid" id="products-grid"></section>
+  </main>
+
+  <div class="drawer" id="cart-drawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+        <h3 style="margin:0; color: var(--neon-blue)">🛰️ TON INVENTAIRE</h3>
+        <button id="close-drawer" style="background:none; border:none; color:white; font-size:24px; cursor:pointer">&times;</button>
+    </div>
+    
+    <input class="input-field" type="text" id="firstname" placeholder="Ton Gamertag" />
+    <div id="cart-list" style="margin: 15px 0; border-top: 1px solid #30363d; padding-top: 10px;"></div>
+    
+    <div style="display:flex; justify-content:space-between; font-weight:900; font-size: 1.2rem; margin-bottom: 20px">
+      <span>Total</span>
+      <span id="cart-total" style="color: var(--neon-blue)">0.00 €</span>
+    </div>
+    
+    <div style="display:grid; gap:10px">
+      <select id="mail-service" class="input-field">
+        <option value="">Choisir ton Mail</option>
+        <option value="gmail">Gmail</option>
+        <option value="hotmail">Outlook / Hotmail</option>
+      </select>
+      <button class="btn" id="checkout">1. Valider le setup</button>
+      <button class="btn" id="send-mail" style="background: var(--neon-blue); color: #000">2. Envoyer le mail</button>
+      <button class="btn" id="clear-cart" style="background: #30363d; color: #fff; font-size: 12px">Vider</button>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      {id:1,name:'LOS 67',category:'ROBLOX',price:100.00,desc:'los 67 yin yang mutaion : flame',color:'#00d4ff',emoji:'🎮', isNew: true},
+    ];
+
+    const midnightNewbies = [
+      {id:14,name:'RTX 4090 Mini',category:'hardware',price:1200.00,desc:'Puissance extrême !',color:'#76b900',emoji:'📟', isNew: true}
+    ];
+
+    const state = {cart:{}, lastOrderText:'', productsLoaded: false};
+
+    function formatEUR(n){return n.toFixed(2)+' €'}
+
+    function renderProducts(list){
+      const grid=document.getElementById('products-grid');
+      grid.innerHTML='';
+      list.forEach(p=>{
+        const card=document.createElement('article');
+        card.className='card';
+        card.innerHTML=`
+          <div class="thumb" style="box-shadow: inset 0 0 20px ${p.color}22">${p.emoji}</div>
+          <div class='title'>${p.name} ${p.isNew ? '<span class="new-tag">NEW DROP</span>' : ''}</div>
+          <div class='muted'>${p.desc}</div>
+          <div class='price'>${formatEUR(p.price)}</div>
+          <button class='btn add' data-id='${p.id}'>Ajouter au setup</button>
+        `;
+        grid.appendChild(card);
+      });
+      document.querySelectorAll('.add').forEach(btn=>btn.addEventListener('click',e=>addToCart(Number(e.target.dataset.id))));
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+      const tomorrow = new Date();
+      tomorrow.setHours(24, 0, 0, 0); 
+      const diff = tomorrow - now;
+
+      if (diff <= 0) {
+        document.getElementById('countdown').textContent = "DROP DISPONIBLE !";
+        if(!state.productsLoaded) {
+          products.unshift(...midnightNewbies);
+          renderProducts(products);
+          state.productsLoaded = true;
+        }
+        return;
+      }
+
+      const h = Math.floor((diff / 3600000) % 24);
+      const m = Math.floor((diff / 60000) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      document.getElementById('countdown').textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    function addToCart(id){
+      state.cart[id] = (state.cart[id] || 0) + 1;
+      updateCartUI();
+    }
+
+    function updateCartUI(){
+      const list=document.getElementById('cart-list');
+      const items = Object.entries(state.cart).map(([id, q]) => {
+        const p = [...products, ...midnightNewbies].find(x => x.id == id);
+        return {p, q};
+      });
+
+      list.innerHTML = items.length ? items.map(it => `
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; background: #0d1117; padding:8px; border-radius:5px">
+          <span>${it.p.name} <strong>x${it.q}</strong></span>
+          <span style="color:var(--neon-blue)">${formatEUR(it.p.price * it.q)}</span>
+        </div>
+      `).join('') : '<div class="muted">Inventaire vide...</div>';
+
+      const total = items.reduce((acc, it) => acc + (it.p.price * it.q), 0);
+      document.getElementById('cart-total').textContent = formatEUR(total);
+      document.getElementById('cart-count').textContent = items.reduce((acc, it) => acc + it.q, 0);
+    }
+
+    document.getElementById('toggle-cart').addEventListener('click', () => document.getElementById('cart-drawer').classList.add('open'));
+    document.getElementById('close-drawer').addEventListener('click', () => document.getElementById('cart-drawer').classList.remove('open'));
+    document.getElementById('clear-cart').addEventListener('click', () => { state.cart = {}; updateCartUI(); });
+
+    document.getElementById('checkout').addEventListener('click', () => {
+      const name = document.getElementById('firstname').value.trim();
+      if(!name) return alert("Indique ton Gamertag !");
+      
+      const items = Object.entries(state.cart).map(([id, q]) => {
+        const p = [...products, ...midnightNewbies].find(x => x.id == id);
+        return `${p.name} x${q} (${formatEUR(p.price*q)})`;
+      });
+
+      if(items.length === 0) return alert("Ton inventaire est vide.");
+
+      state.lastOrderText = `NEXUS GAMING - NOUVEAU SETUP\nJoueur : ${name}\nConfiguration :\n- ${items.join('\n- ')}\n\nTOTAL : ${document.getElementById('cart-total').textContent}`;
+      alert("✅ Configuration enregistrée !\n\nChoisis ton mail pour nous l'envoyer.");
+    });
+
+    document.getElementById('send-mail').addEventListener('click', () => {
+      const service = document.getElementById('mail-service').value;
+      if(!service || !state.lastOrderText) return alert("Valide ton setup d'abord !");
+      const email = "onebate45@gmail.com";
+      const subject = "NOUVELLE COMMANDE SETUP GAMING";
+      const body = encodeURIComponent(state.lastOrderText);
+      let url = service === 'gmail' 
+        ? `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`
+        : `https://outlook.live.com/owa/?path=/mail/action/compose&to=${email}&subject=${subject}&body=${body}`;
+      window.open(url, '_blank');
+    });
+
+    renderProducts(products);
+  </script>
+</body>
+</html>
